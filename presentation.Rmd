@@ -1,0 +1,76 @@
+---
+title: "CO2 in trees - calculation app"
+author: "Felipe Wolff"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Calculate the CO2 content in trees
+
+The carbon content of trees can be estimated as the product of the total volume of wood in their trunk and an estimation factor ranging from 30 to 60 percent of the tree's structure.
+
+The total volume of wood contained in a tree is calculated using taper formulas. Several formulas have been derived for this purpose; however, for the purpose of this approach, we will use the Smalian formula.
+
+## User code
+The formulas as explicited below
+```{r, eval= FALSE}
+
+shinyUI(pageWithSidebar(
+    headerPanel("Calculate CO2 content in a tree by Smalian formula"),
+    sidebarPanel(
+        h5("CO2 content is a measure of how much C has a forest based
+           on the trees formation and forest density"),
+        numericInput("radius1", "Input radius 1 (m)", value=0.3),
+        numericInput("radius2", "Input radius 2 (m)", value=0.1),
+        numericInput("height","Input the height of the tree (m)", 
+                     value = 10),
+        numericInput("Co2_content", "Input the estimated amount 
+                     of Co2 (30-60%)", value = 0.5),
+        submitButton("Calculate")
+    ),
+    mainPanel(
+        h3("Results:"),
+        p("Total Volume of the tree (m3):"),
+        verbatimTextOutput("volume"),
+        p("Total Co2 estimated(kg):"),
+        verbatimTextOutput("co2")
+        )
+))
+```
+
+## server code
+With the user inputs, the server runs as follows
+
+```{r server, eval=FALSE}
+
+voltree <- function(radius1, radius2,height){
+  volume <- round(((radius1+radius2)/2*height), digits =1)
+}
+co2func <- function(radius1, radius2,height,Co2_content){
+    co2 <- round(((radius1+radius2)/2*height)*0.5*Co2_content, 
+                 digits =1) 
+}
+
+shinyServer(
+    function(input, output){
+        output$volume <- renderText({voltree(input$radius1, 
+                                             input$radius2,
+                                             input$height)})
+        output$co2 <- renderText({co2func(input$radius1, 
+                                          input$radius2,
+                                          input$height, 
+                                          input$Co2_content)})
+    }
+)
+
+```
+## Directions
+
+
+The values to be input correspond to the radii of a tree. Radius 1 corresponds to the radius nearest to the base, while radius 2 corresponds to the radius of the trunk near the canopy. The height of the tree should be added in meters, and the carbon factor should be adjusted between 30% and 60%. However, it is generally established that a factor of 50% is robust for this analysis.
+
+## Thank you
